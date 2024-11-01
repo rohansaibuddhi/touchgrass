@@ -1,5 +1,13 @@
 ---
-
+setTimeout(()=>{	
+	console.log(sessionCookie)
+}, 5000)
+const sessionCookie = Astro.cookies.get("session")
+console.log(sessionCookie)
+if(!sessionCookie){
+	return Astro.redirect("/signin")
+}
+export const prerender = false
 ---
 
 <html lang="en">
