@@ -1,0 +1,75 @@
+.whitebox {
+  @apply
+  bg-white
+  shadow-md
+  rounded
+  px-8
+  pt-6
+  pb-8
+}
+
+.menu {
+  @apply
+  absolute
+  right-5
+  bg-white
+  shadow-md
+  rounded
+}
+
+.menu * {
+  @apply
+  block
+  text-gray-700
+  text-sm
+  px-4
+  py-2
+  hover:bg-gray-400
+  hover:text-white
+}
+
+.companylogo {
+  @apply
+  rounded
+  h-10
+  w-20
+}
+
+.profilepic {
+  @apply
+  rounded-full
+  h-10
+  w-10
+}
+
+.copyright {
+  @apply
+  text-gray-500
+  text-xs
+}
+
+.timeline {
+  @apply
+  border-s
+  border-gray-700
+}
+
+.timeline p {
+  @apply
+  text-base
+  font-normal
+  text-gray-400
+}
+
+.timelineitem {
+  @apply
+  absolute
+  w-2
+  h-2
+  bg-gray-700
+  rounded-full
+  border
+  border-gray-900
+  -start-1
+  mt-2
+}
