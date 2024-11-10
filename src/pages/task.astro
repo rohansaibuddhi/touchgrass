@@ -1,0 +1,105 @@
+---
+import "../styles/global.css"
+import "../styles/elements.css"
+import "../styles/classes.css"
+
+const sessionCookie = Astro.cookies.get("session")
+if(!sessionCookie){
+	return Astro.redirect("/signin")
+}
+export const prerender = false
+---
+
+<div>
+    <section class = "whitebox w-full max-w-xs justify-self-center mt-40">
+        <form id="touchgrass" class="">
+            <h1>
+                Do you want to touch grass today?
+            </h1>
+            <button type="submit" class="mt-4 mr-4">
+                Yes
+            </button>
+            <button type="submit" class="mt-4 ml-4">
+                Yes Please!
+            </button>
+        </form>
+        <form id="tasks" class="">
+            <h1>
+                Your Tasks
+            </h1>
+            <ol>
+                <li>
+                    <input type="checkbox" name="step1" value="Done">
+                    <label for="step1">
+                        Go to the adler planetarium
+                    </label>
+                </li>
+                <li>
+                    <input type="checkbox" name="step2" value="Done">
+                    <label for="step2">
+                        Ask someone to take a photo of yourself with the adler planetarium in the background
+                    </label>
+                </li>
+                <li>
+                    <input type="checkbox" name="step3" value="Done">
+                    <label for="step3">
+                        Upload your photo
+                    </label>
+                    <br>
+                    <input type="file" name="photo">
+                </li>
+            </ol>
+            <button type="submit" class="mt-4">
+                Proceed
+            </button>
+        </form>
+        <form id="taskcomplete" class="">
+            <h1>
+                Congrats, you've completed your task!
+            </h1>
+            <p>
+                Image here!
+            </p>
+            <button type="submit" class="mt-4 mr-4">
+                New Task
+            </button>
+            <button type="submit" class="mt-4 ml-4">
+                Home
+            </button>
+        </form>
+        <div id="history">
+            <ol class="relative timeline">                  
+                <li class="mb-10 ms-4">
+                    <div class="timelineitem"></div>
+                    <h3>
+                        Adler Planetarium
+                    </h3>
+                    <p>
+                        You asked a stranger to take your picture with adler planetarium in the background.
+                    </p>
+                    
+                </li>
+                <li class="mb-10 ms-4">
+                    <div class="timelineitem"></div>
+                    <h3>
+                        Navy Pier
+                    </h3>
+                    <p>
+                        You were supposed to ride the ferris wheel with another user of the app.
+                    </p>
+                    <button class="mt-2">Try Again</button>
+                </li>
+                <li class="ms-4">
+                    <div class="timelineitem"></div>
+                    <h3>
+                        Lincoln Park
+                    </h3>
+                    <p>
+                        You grabbed a drink with another user at at Lake Michigan
+                    </p>
+                </li>
+            </ol>
+        </div>
+    </section>
+</div>
+

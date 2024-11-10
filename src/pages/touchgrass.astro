@@ -1,0 +1,74 @@
+---
+import "../styles/global.css"
+import "../styles/elements.css"
+import "../styles/classes.css"
+---
+
+<body>
+    <div class="flex items-center justify-center min-h-screen">
+        <section class = "whitebox w-full max-w-md">
+            <form id="touchgrass" class="items-center" action = "/api/task" method = "post">
+                <h1>
+                    Do you want to touch grass today?
+                </h1>
+                <button type="button" class="mt-4 mr-4">
+                    Yes
+                </button>
+                <button type="button" class="mt-4 ml-4">
+                    Yes Please!
+                </button>
+                <!-- Hidden inputs for location data -->
+                <input type="hidden" id="latitude" name="latitude">
+                <input type="hidden" id="longitude" name="longitude">
+            </form>
+        </section>
+    </div>
+    
+    <!-- Popup for Location Access Message -->
+    <div id="location-popup" class="hidden fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75">
+        <div class="bg-white p-6 rounded shadow-lg max-w-xl text-center">
+            <p class = "text-l">Please enable Location access in the top left corner...</p>
+        </div>
+    </div>
+    
+    <script>
+        const buttons = document.querySelectorAll('button')
+        
+        buttons.forEach((button) =>{
+            button.addEventListener('click', () => {
+                requestLocation();
+            })
+        })
+
+
+        function requestLocation() {
+            const popup = document.getElementById("location-popup")
+            popup?.classList.remove("hidden");
+    
+            //hide popup after 5 seconds
+            setTimeout(() => {
+                popup?.classList.add("hidden")
+            }, 5000)
+    
+            if(navigator.geolocation){
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const {latitude, longitude} = position.coords;
+                        console.log("User Location: ", latitude, longitude);
+                        // Set the latitude and longitude values in the hidden inputs
+                        (document.getElementById("latitude") as HTMLInputElement).value = latitude.toString();
+                        (document.getElementById("longitude") as HTMLInputElement).value = longitude.toString();
+    
+                        // Submit the form programmatically
+                        (document.getElementById("touchgrass") as HTMLFormElement).submit();
+                },
+                    (error) => {
+                        console.error("Location access denied", error)
+                    }
+                );
+            } else{
+                console.error("Geolocation is not supported by this browser")
+            }
+        }
+    </script>
+</body>
