@@ -26,7 +26,7 @@ export const POST: APIRoute = async ({ request, redirect, cookies }) => {
         maxAge: 5 * 24 * 60 * 60 * 1000,
         path: "/",
     });
-    return redirect("/");
+    return redirect("/touchgrass");
   }
 
   return new Response(null, { status: 403 });
