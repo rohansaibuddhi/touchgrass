@@ -1,88 +1,74 @@
 import { useEffect, useState } from "react";
 import History, { type Activity } from "./History";
+import Start from "./Start";
 import Header from "./Header";
 import { fetchActivities } from "../services/activities";
 import Profile, { type User } from "./Profile";
 import { fetchUser } from "../services/users";
 
-function doSomething() {
-
-}
+function doSomething() {}
 
 enum DisplayOptions {
-    ShowTouchGrassOptions,
-    ShowActivityDetails,
-    ShowActivityCompletion,
-    ShowActivityHistory,
-    ShowProfile
+  ShowTouchGrassOptions,
+  ShowActivityDetails,
+  ShowActivityCompletion,
+  ShowActivityHistory,
+  ShowProfile,
 }
 
-
 export default function App() {
-    const [displayOptions, setDisplayOptions] = useState(DisplayOptions.ShowTouchGrassOptions);
-    const [pastActivities, setPastActivities] = useState<Activity[]>([]);
-    const [user, setUser] = useState<User>();
+  const [displayOptions, setDisplayOptions] = useState(
+    DisplayOptions.ShowTouchGrassOptions
+  );
+  const [pastActivities, setPastActivities] = useState<Activity[]>([]);
+  const [user, setUser] = useState<User>();
 
-    async function renderNewActivity() {
-        setDisplayOptions(DisplayOptions.ShowTouchGrassOptions);
-    }
+  async function renderNewActivity() {
+    setDisplayOptions(DisplayOptions.ShowTouchGrassOptions);
+  }
 
-    async function renderProfile() {
-        setUser(await fetchUser());
-        setDisplayOptions(DisplayOptions.ShowProfile);
-    }
-    
-    async function renderActivityHistory() {
-        setPastActivities(await fetchActivities());
-        setDisplayOptions(DisplayOptions.ShowActivityHistory);
-    }
+  async function renderProfile() {
+    setUser(await fetchUser());
+    setDisplayOptions(DisplayOptions.ShowProfile);
+  }
 
-    async function handleLogout() {
-        window.location.href = "/signout";
-    }
-    
-    return (
-        <>
-            <Header
-                renderProfile={renderProfile}
-                renderActivityHistory={renderActivityHistory}
-                handleLogout={handleLogout}
-                renderNewActivity={renderNewActivity}
-            />
+  async function renderActivityHistory() {
+    setPastActivities(await fetchActivities());
+    setDisplayOptions(DisplayOptions.ShowActivityHistory);
+  }
 
-            {/** start of conditionally rendered content */}
+  async function handleLogout() {
+    window.location.href = "/signout";
+  }
 
-            {
-                displayOptions === DisplayOptions.ShowTouchGrassOptions
-                    &&
-                <h1 className="mt-20">Welcome to Touch Grass</h1>
-            }
+  return (
+    <>
+      <Header
+        renderProfile={renderProfile}
+        renderActivityHistory={renderActivityHistory}
+        handleLogout={handleLogout}
+        renderNewActivity={renderNewActivity}
+      />
 
-            {
-                displayOptions === DisplayOptions.ShowTouchGrassOptions
-                    &&
-                <></>
-            }
+      {/** start of conditionally rendered content */}
 
-            {
-                displayOptions === DisplayOptions.ShowTouchGrassOptions
-                    &&
-                <></>
-            }
+      {displayOptions === DisplayOptions.ShowTouchGrassOptions && (
+        <h1 className="mt-20">Welcome to Touch Grass</h1>
+      )}
 
-            {
-                displayOptions === DisplayOptions.ShowActivityHistory
-                    &&
-                <History activities={pastActivities} handleRetry={doSomething}/>
-            }
+      {displayOptions === DisplayOptions.ShowTouchGrassOptions && <Start />}
 
-            {
-                displayOptions === DisplayOptions.ShowProfile
-                    && user &&
-                <Profile {...user}/>
-            }
+      {displayOptions === DisplayOptions.ShowTouchGrassOptions && <></>}
 
-            {/** end of conditionally rendered content */}
-        </>
-    );
+      {displayOptions === DisplayOptions.ShowActivityHistory && (
+        <History activities={pastActivities} handleRetry={doSomething} />
+      )}
+
+      {displayOptions === DisplayOptions.ShowProfile && user && (
+        <Profile {...user} />
+      )}
+
+      {/** end of conditionally rendered content */}
+    </>
+  );
 }
