@@ -19,3 +19,7 @@ All backend REST APIs go here. Use cases include making a database call from the
 A functional wrapper over fetch() calls. This will make a REST API call from client side components.
 ### styles/
 Minimal global styles like themes go here. Keep as little css in this file as possible and colocate all css with the components in either pages/ or components/.
+
+A .env file is required to run this project in your local machine, The .env file should be at the root of the project and contain 2 environment variables:
+- DATABASE_URL
+- REDIS_URL
