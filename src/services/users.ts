@@ -1,6 +1,6 @@
-const baseUrl = '/api/activities'
+const baseUrl = '/api/users'
 
-export const fetchActivities = async () => {
+export const fetchUser = async () => {
     const response = await fetch(`${baseUrl}`, {
         method: 'GET',
         headers: {

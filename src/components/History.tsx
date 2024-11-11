@@ -1,29 +1,21 @@
-import { useEffect, useState } from "react";
 import Button from "../layouts/Button";
 import TimelineMarker from "../layouts/TimelineMarker";
-import { fetchActivities } from "../services/activities";
 
-interface TimelineContent {
+export interface Activity {
     id: number,
     summary: string,
     location: string,
     completed: boolean
 }
 
-export default function History() {
-    const [activities, setActivities] = useState<TimelineContent[]>([]);
+interface HistoryProps {
+    activities: Activity[],
+    handleRetry: Function
+}
 
-    async function loadActivities() {
-        const act = await fetchActivities();
-        setActivities(act);
-    }
-
-    useEffect(() => {
-        loadActivities()
-    }, []);
-
+export default function History({activities, handleRetry}: HistoryProps) {
   return (
-    <div id="history">
+    <div id="history" className="w-full max-w-md justify-self-center mt-20 bg-white shadow-md rounded px-8 pt-6 pb-8">
         <ol className="relative border-s border-gray-700">
             {activities.map(item => (
                 <li key="{item.id}" className="mb-10 ms-4">
@@ -38,7 +30,7 @@ export default function History() {
                         !item.completed && 
                         <Button 
                             text="Try Again"
-                            clickHandler={evt => console.log(evt)}
+                            clickHandler={evt => handleRetry(evt.target)}
                             alignment="mt-2"/>
                     }
                 </li>

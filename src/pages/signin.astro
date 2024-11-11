@@ -2,32 +2,45 @@
 import "../styles/global.css"
 import "../styles/elements.css"
 import "../styles/classes.css"
+
+const sessionCookie = Astro.cookies.get("session")?.value;
+if(sessionCookie){
+	return Astro.redirect("/")
+}
+export const prerender = false
 ---
 
-
-
-<body>
-    <div id="signin-form" class="w-full max-w-xs justify-self-center mt-20">
-        <h1 class="text-center mb-4">
-            Login to Touch Grass
-        </h1>
-        <form action = "/api/authentication" method = "post" class="whitebox mb-4">
-            <label for="username" class="block mb-2">
-                Username
-            </label>
-            <input name="uname" type= "text" placeholder = "Username" class="mb-3"/> 
-            <label for="pwd" class="block mb-2">
-                Password
-            </label>
-            <input name="pwd" type = "password" placeholder = "*********" class="mb-3"/>
-            <button type = "submit">
-                Sign In
-            </button>
-        </form>
-        <p class="copyright m-4 text-center">
-            &copy;Touch Grass. All Rights Reserved.
-        </p>
-    </div>
-    
-</body>
-
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<title>
+			Touch Grass
+		</title>
+	</head>
+	<body>
+        <div id="signin-form" class="w-full max-w-xs justify-self-center mt-20">
+            <h1 class="text-center mb-4">
+                Login to Touch Grass
+            </h1>
+            <form action = "/api/authentication" method = "post" class="whitebox mb-4">
+                <label for="username" class="block mb-2">
+                    Username
+                </label>
+                <input name="uname" type= "text" placeholder = "Username" class="mb-3"/> 
+                <label for="pwd" class="block mb-2">
+                    Password
+                </label>
+                <input name="pwd" type = "password" placeholder = "*********" class="mb-3"/>
+                <button type = "submit">
+                    Sign In
+                </button>
+            </form>
+            <p class="copyright m-4 text-center">
+                &copy;Touch Grass. All Rights Reserved.
+            </p>
+        </div>
+        
+    </body>
+</html>

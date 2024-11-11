@@ -1,0 +1,14 @@
+---
+import "../styles/global.css"
+import "../styles/elements.css"
+import "../styles/classes.css"
+
+import { kv } from '../config/kv.connection';
+const session = Astro.cookies.get("session")?.value;
+if (session) {
+    await kv.del(session);
+}
+Astro.cookies.delete("session"); 
+return Astro.redirect("/signin");
+
+---

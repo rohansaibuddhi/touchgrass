@@ -20,14 +20,13 @@ export const POST: APIRoute = async ({ request, redirect, cookies }) => {
 
   if (id) {
     const session = uuidv4().toString();
-    await kv.set(session, id)
+    await kv.set(session, id);
     cookies.set("session", session, {
         httpOnly: true,
-        maxAge: 5 * 24 * 60 * 60 * 1000,
+        maxAge: 5 * 24 * 60 * 60,
         path: "/",
     });
-    return redirect("/touchgrass");
   }
 
-  return new Response(null, { status: 403 });
+  return redirect("/");
 };
