@@ -21,3 +21,4 @@ export const POST: APIRoute = async ({ request, redirect, cookies }) => {
 
   return new Response(null, { status: 400 });
 };
+

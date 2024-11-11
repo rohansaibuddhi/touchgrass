@@ -2,6 +2,7 @@
 import "../styles/global.css"
 import "../styles/elements.css"
 import "../styles/classes.css"
+import History from "../components/History"
 
 const sessionCookie = Astro.cookies.get("session")
 if(!sessionCookie){
@@ -21,11 +22,11 @@ export const prerender = false
 	</head>
 	<body>
 		<header class="flex justify-between">
-			<img src="public/Grass.jpg" alt="company logo" class="companylogo m-2"/>
+			<img src="/Grass.jpg" alt="company logo" class="companylogo m-2"/>
 			<span id="loggedintext" class="text-center justify-self-end m-4 align-middle">
 				Touch Grass
 			</span>
-			<img id="profile" src="public/User.jpg" alt="user logo" class="profilepic m-2 justify-self-end"/>
+			<img id="profile" src="/User.jpg" alt="user logo" class="profilepic m-2 justify-self-end"/>
 			<div id="menu" class="hidden menu mt-16 flex flex-col">
 				<a href="#profile">
 					Your Profile
@@ -94,39 +95,7 @@ export const prerender = false
 					Home
 				</button>
 			</form>
-			<div id="history">
-				<ol class="relative timeline">                  
-					<li class="mb-10 ms-4">
-						<div class="timelineitem"></div>
-						<h3>
-							Adler Planetarium
-						</h3>
-						<p>
-							You asked a stranger to take your picture with adler planetarium in the background.
-						</p>
-						
-					</li>
-					<li class="mb-10 ms-4">
-						<div class="timelineitem"></div>
-						<h3>
-							Navy Pier
-						</h3>
-						<p>
-							You were supposed to ride the ferris wheel with another user of the app.
-						</p>
-						<button class="mt-2">Try Again</button>
-					</li>
-					<li class="ms-4">
-						<div class="timelineitem"></div>
-						<h3>
-							Lincoln Park
-						</h3>
-						<p>
-							You grabbed a drink with another user at at Lake Michigan
-						</p>
-					</li>
-				</ol>
-			</div>
+			<History client:load/>
 		</section>
 		<footer>
 			<ul class="flex justify-center">
