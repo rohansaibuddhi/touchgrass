@@ -5,6 +5,8 @@ interface HeaderProps {
   renderProfile: Function;
   renderActivityHistory: Function;
   handleLogout: Function;
+  requestLocation: Function;
+  setLocation: Function;
   renderNewActivity: Function;
   location: Location | undefined;
 }
@@ -13,6 +15,8 @@ export default function Header({
   renderProfile,
   renderActivityHistory,
   handleLogout,
+  requestLocation,
+  setLocation,
   renderNewActivity,
   location,
 }: HeaderProps) {
@@ -46,7 +50,7 @@ export default function Header({
         </a>
         <a
           className={menuItemStyles}
-          onClick={(evt) => renderNewActivity(location)}
+          onClick={(evt) => requestLocation({ setLocation, renderNewActivity })}
         >
           Touch Grass
         </a>
