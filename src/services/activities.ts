@@ -28,3 +28,28 @@ export const storeActivity = async (activity: any) => {
 
   return response.json();
 };
+
+export const verifyActivity = async (
+  imageData: any,
+  activity: any,
+  id: Number
+) => {
+  const response = await fetch(`${baseUrl}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id: id,
+      image: imageData,
+      type: "image/jpeg",
+      activity: activity,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to verify image");
+  }
+
+  return response.json();
+};

@@ -9,6 +9,7 @@ import { fetchActivities, storeActivity } from "../services/activities";
 import Profile, { type User } from "./Profile";
 import { fetchUser } from "../services/users";
 import { Activity as CurrActivity } from "./Activity";
+import ActivityCompletion from "./ActivityCompletion";
 
 function doSomething() {}
 
@@ -39,6 +40,7 @@ export default function App() {
   const [location, setLocation] = useState<Location>();
   const [pastActivities, setPastActivities] = useState<Activity[]>([]);
   const [user, setUser] = useState<User>();
+  const [currActivity, setCurrActivity] = useState<Number>(-1);
 
   //useEffect with empty dependency to run once on page load to fetch existing activity if any
   useEffect(() => {
@@ -76,7 +78,7 @@ export default function App() {
         //console.log(activity.completed);
         if (!activity.completed) {
           //get tasks of incomplete activity
-          const currActivityId = activity.id;
+          setCurrActivity(activity.id);
           const currActivity = await fetchCurrentTask(activity.id);
 
           const currTask: ActivitySteps = {
@@ -100,6 +102,11 @@ export default function App() {
 
   async function handleLogout() {
     window.location.href = "/signout";
+  }
+
+  function renderActivityCompletion() {
+    setDisplayOptions(DisplayOptions.ShowActivityCompletion);
+    console.log(displayOptions);
   }
 
   return (
@@ -129,7 +136,20 @@ export default function App() {
         )}
 
       {displayOptions === DisplayOptions.ShowTouchGrassOptions &&
-        currentTask && <CurrActivity steps={currentTask} />}
+        currentTask && (
+          <CurrActivity
+            steps={currentTask}
+            renderActivityCompletion={renderActivityCompletion}
+            id={currActivity}
+          />
+        )}
+
+      {displayOptions === DisplayOptions.ShowActivityCompletion && (
+        <ActivityCompletion
+          renderNewActivity={renderNewActivity}
+          renderActivityHistory={renderActivityHistory}
+        />
+      )}
 
       {displayOptions === DisplayOptions.ShowActivityHistory && (
         <History activities={pastActivities} handleRetry={doSomething} />
