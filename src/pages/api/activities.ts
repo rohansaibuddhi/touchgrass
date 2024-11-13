@@ -24,46 +24,63 @@ export const prerender = false;
 
 export const GET: APIRoute = async ({ cookies }) => {
   const session = cookies.get("session");
-  const id = await kv.get(session?.value);
-  const rec = await db
-    .select()
-    .from(activities)
-    .where(eq(activities.userid, id))
-    .orderBy(activities.id);
-  return new Response(JSON.stringify(rec), { status: 200 });
+  let id = null;
+  if (session) {
+    id = await kv.get(session?.value);
+  }
+
+  if (id) {
+    const rec = await db
+      .select()
+      .from(activities)
+      .where(eq(activities.userid, parseInt(id)))
+      .orderBy(activities.id);
+    return new Response(JSON.stringify(rec), { status: 200 });
+  }
+
+  return new Response(JSON.stringify({}), { status: 403 });
 };
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   const session = cookies.get("session");
-  const id: number = parseInt(await kv.get(session?.value));
-  const data: activityData = await request.json();
-  let date = new Date();
 
-  const activity = {
-    userid: id,
-    summary: data.summary,
-    requestedOn: date.toISOString(),
-    location: data.location,
-    completed: false,
-    points: 20,
-  };
-  const actRec = await db.insert(activities).values(activity).returning();
-  const activity_id = actRec[0].id;
-
-  //insert tasks to the tasks table
-  const tasksArr = [];
-  for (let i = 0; i < 3; i++) {
-    let currStep = "step" + (i + 1);
-
-    tasksArr[i] = {
-      activityId: activity_id,
-      description: data[currStep],
-      completed: false,
-    };
+  let id = null;
+  if (session) {
+    id = await kv.get(session?.value);
   }
-  const taskRec = await db.insert(tasks).values(tasksArr);
 
-  return new Response(JSON.stringify({ actRec }), { status: 200 });
+  if (id) {
+    const data: activityData = await request.json();
+    let date = new Date();
+
+    const activity = {
+      userid: parseInt(id),
+      summary: data.summary,
+      requestedOn: date.toISOString(),
+      location: data.location,
+      completed: false,
+      points: 20,
+    };
+    const actRec = await db.insert(activities).values(activity).returning();
+    const activity_id = actRec[0].id;
+
+    //insert tasks to the tasks table
+    const tasksArr = [];
+    for (let i = 0; i < 3; i++) {
+      let currStep = "step" + (i + 1);
+
+      tasksArr[i] = {
+        activityId: activity_id,
+        description: data[currStep],
+        completed: false,
+      };
+    }
+    const taskRec = await db.insert(tasks).values(tasksArr);
+
+    return new Response(JSON.stringify({ actRec }), { status: 200 });
+  }
+
+  return new Response(JSON.stringify({}), { status: 403 });
 };
 
 export const PUT: APIRoute = async ({ request, cookies }) => {
