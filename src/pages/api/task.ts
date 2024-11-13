@@ -1,6 +1,9 @@
 import type { APIRoute } from "astro";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { GenerateContentResult } from "@google/generative-ai";
+import { tasks } from "../../models/tasks.ts";
+import { db } from "../../config/db.connection.ts";
+import { eq } from "drizzle-orm";
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request }) => {
@@ -57,4 +60,34 @@ export const POST: APIRoute = async ({ request }) => {
     }),
     { status: 500, headers: { "Content-Type": "application/json" } }
   );
+};
+
+//TODO: Need both activityId and taskId to update correctly.
+export const PUT: APIRoute = async ({ request }) => {
+  const { activityId, taskCompleted } = await request.json();
+
+  if (!activityId) {
+    return new Response(JSON.stringify({ error: "Invalid task ID or step" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  try {
+    // Update the database
+    await db
+      .update(tasks)
+      .set({ completed: taskCompleted }) // Example field, adjust according to DB schema
+      .where(eq(tasks.activityId, activityId));
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: "Database update failed" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 };

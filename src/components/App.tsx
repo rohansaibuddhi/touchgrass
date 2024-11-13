@@ -106,6 +106,7 @@ export default function App() {
 
   function renderActivityCompletion() {
     setDisplayOptions(DisplayOptions.ShowActivityCompletion);
+    setCurrentTask(undefined);
     console.log(displayOptions);
   }
 
@@ -119,6 +120,7 @@ export default function App() {
         setLocation={setLocation}
         renderNewActivity={renderNewActivity}
         location={location}
+        currTask={currentTask}
       />
 
       {/** start of conditionally rendered content */}

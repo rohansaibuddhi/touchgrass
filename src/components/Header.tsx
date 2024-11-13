@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { type Location } from "./Start";
+import { type Location, type ActivitySteps } from "./Start";
 
 interface HeaderProps {
   renderProfile: Function;
@@ -9,6 +9,7 @@ interface HeaderProps {
   setLocation: Function;
   renderNewActivity: Function;
   location: Location | undefined;
+  currTask: ActivitySteps | undefined;
 }
 
 export default function Header({
@@ -19,6 +20,7 @@ export default function Header({
   setLocation,
   renderNewActivity,
   location,
+  currTask,
 }: HeaderProps) {
   const [showMenu, setShowMenu] = useState(false);
   let menuStyles =
@@ -32,6 +34,15 @@ export default function Header({
   }, [showMenu]);
   const menuItemStyles =
     "block text-gray-700 text-sm px-4 py-2 hover:bg-gray-400 hover:text-white";
+
+  const touchGrass = async () => {
+    //if location has not been assigned/granted yet.
+    if (!currTask && !location) {
+      await requestLocation({ setLocation, renderNewActivity });
+    } else {
+      await renderNewActivity(location);
+    }
+  };
 
   return (
     <header className="flex justify-between bg-gray-800 fixed top-0 right-0 left-0">
@@ -48,10 +59,7 @@ export default function Header({
         <a className={menuItemStyles} onClick={(evt) => renderProfile()}>
           Your Profile
         </a>
-        <a
-          className={menuItemStyles}
-          onClick={(evt) => requestLocation({ setLocation, renderNewActivity })}
-        >
+        <a className={menuItemStyles} onClick={(evt) => touchGrass()}>
           Touch Grass
         </a>
         <a
