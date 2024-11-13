@@ -12,13 +12,15 @@ interface activityData {
 }
 
 export const prerender = false;
+
 export const GET: APIRoute = async ({ cookies }) => {
   const session = cookies.get("session");
   const id = await kv.get(session?.value);
   const rec = await db
     .select()
     .from(activities)
-    .where(eq(activities.userid, id));
+    .where(eq(activities.userid, id))
+    .orderBy(activities.id);
   return new Response(JSON.stringify(rec), { status: 200 });
 };
 
@@ -27,7 +29,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const id: number = parseInt(await kv.get(session?.value));
   const data: activityData = await request.json();
   let date = new Date();
-  //console.log(id, date);
+
   const activity = {
     userid: id,
     summary: data.summary,
@@ -43,15 +45,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const tasksArr = [];
   for (let i = 0; i < 3; i++) {
     let currStep = "step" + (i + 1);
-    console.log(currStep);
+
     tasksArr[i] = {
       activityId: activity_id,
       description: data[currStep],
       completed: false,
     };
   }
-  //console.log(tasksArr);
   const taskRec = await db.insert(tasks).values(tasksArr);
 
-  return new Response(JSON.stringify({ hello: "world" }), { status: 200 });
+  return new Response(JSON.stringify({ actRec }), { status: 200 });
 };

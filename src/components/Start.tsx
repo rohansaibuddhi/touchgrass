@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
-
 export interface ActivitySteps {
-  step1: string;
-  step2: string;
-  step3: string;
+  [step: string]: string | boolean;
+  location: string;
+  summary: string;
+  completed: boolean;
 }
 
 export interface Location {
@@ -42,7 +41,7 @@ export const requestLocation = async ({
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          console.log("User Location:", latitude, longitude);
+          //console.log("User Location:", latitude, longitude);
           const currLoc: Location = {
             latitude: latitude.toString(),
             longitude: longitude.toString(),

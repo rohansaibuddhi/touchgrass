@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import History, { type Activity } from "./History";
 import { type ActivitySteps, type Location } from "./Start";
-import { fetchTaskSteps } from "../services/taskSteps";
+import { fetchTaskSteps, fetchCurrentTask } from "../services/taskSteps";
 import { requestLocation } from "./Start";
 import Start from "./Start";
 import Header from "./Header";
-import { fetchActivities } from "../services/activities";
+import { fetchActivities, storeActivity } from "../services/activities";
 import Profile, { type User } from "./Profile";
 import { fetchUser } from "../services/users";
 import { Activity as CurrActivity } from "./Activity";
@@ -20,16 +20,33 @@ enum DisplayOptions {
   ShowProfile,
 }
 
+interface returnedActivities {
+  id: Number;
+  userid: Number;
+  summary: string;
+  requestedOn: Date;
+  location: string;
+  completed: boolean;
+  points: Number;
+}
+
 export default function App() {
   const [displayOptions, setDisplayOptions] = useState(
     DisplayOptions.ShowTouchGrassOptions
   );
 
   const [currentTask, setCurrentTask] = useState<ActivitySteps>();
-
   const [location, setLocation] = useState<Location>();
   const [pastActivities, setPastActivities] = useState<Activity[]>([]);
   const [user, setUser] = useState<User>();
+
+  //useEffect with empty dependency to run once on page load to fetch existing activity if any
+  useEffect(() => {
+    const initializeActivity = async () => {
+      await getCurrentActivity();
+    };
+    initializeActivity();
+  }, []);
 
   async function renderNewActivity(currLocation: Location) {
     if (!currentTask) {
@@ -38,13 +55,42 @@ export default function App() {
         currLocation.longitude
       );
       setCurrentTask(task);
+      storeActivity(task);
     }
+
     setDisplayOptions(DisplayOptions.ShowTouchGrassOptions);
   }
 
   async function renderProfile() {
     setUser(await fetchUser());
     setDisplayOptions(DisplayOptions.ShowProfile);
+  }
+
+  async function getCurrentActivity() {
+    //fetch all activities
+    if (pastActivities.length === 0) {
+      const allActivities = await fetchActivities();
+      //console.log(allActivities);
+      allActivities.forEach(async (activity: returnedActivities) => {
+        //check for incomplete activity
+        //console.log(activity.completed);
+        if (!activity.completed) {
+          //get tasks of incomplete activity
+          const currActivityId = activity.id;
+          const currActivity = await fetchCurrentTask(activity.id);
+
+          const currTask: ActivitySteps = {
+            step1: currActivity[0].description,
+            step2: currActivity[1].description,
+            step3: currActivity[2].description,
+            location: activity.location,
+            summary: activity.summary,
+            completed: activity.completed,
+          };
+          setCurrentTask(currTask);
+        }
+      });
+    }
   }
 
   async function renderActivityHistory() {

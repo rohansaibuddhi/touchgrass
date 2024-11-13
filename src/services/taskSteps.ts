@@ -20,3 +20,18 @@ export const fetchTaskSteps = async (
 
   return response.json();
 };
+
+export const fetchCurrentTask = async (activityId: Number) => {
+  const response = await fetch(`${baseUrl}/${activityId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to get current activity");
+  }
+
+  return response.json();
+};
