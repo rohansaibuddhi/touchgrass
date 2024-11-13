@@ -2,10 +2,17 @@
 import "../styles/global.css"
 import "../styles/elements.css"
 import "../styles/classes.css"
+import { kv } from "../config/kv.connection";
 
 const sessionCookie = Astro.cookies.get("session")?.value;
 if(sessionCookie){
-	return Astro.redirect("/")
+    if (!await kv.get(sessionCookie)) {
+        Astro.cookies.set("session", "nop", {
+            httpOnly: true,
+            expires: new Date("December 17, 1995 03:24:00"),
+            path: "/",
+        });
+    } else return Astro.redirect("/")
 }
 export const prerender = false
 ---

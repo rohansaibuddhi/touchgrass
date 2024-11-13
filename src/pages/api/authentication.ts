@@ -26,3 +26,20 @@ export const POST: APIRoute = async ({ request, redirect, cookies }) => {
 
   return redirect("/");
 };
+
+export const DELETE: APIRoute = async ({ redirect, cookies }) => {
+  if (cookies.get("session")) {
+    const session = cookies.get("session")?.value;
+    cookies.set("session", "nop", {
+      httpOnly: true,
+      expires: new Date("December 17, 1995 03:24:00"),
+      path: "/",
+    });
+    if (session) {
+      await kv.del(session);
+      console.log("cookie:", await kv.get(session));
+    }
+  }
+
+  return redirect("/signin");
+};
