@@ -4,7 +4,7 @@ declare global {
     interface ProcessEnv {
       DATABASE_URL: string;
       REDIS_URL: string;
-      VITE_GEMINI_KEY: string;
+      GEMINI_KEY: string;
     }
   }
 }

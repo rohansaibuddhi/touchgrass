@@ -1,28 +1,58 @@
 import React, { useRef, useState } from "react";
 import { type ActivitySteps } from "./Start";
 import { verifyActivity } from "../services/activities";
+import { updateTaskStatus } from "../services/taskSteps";
 
 interface ActivityProps {
   id: Number;
   steps: ActivitySteps;
   renderActivityCompletion: Function;
+  currTaskStatus: TaskStatus[];
+}
+
+export interface TaskStatus {
+  taskId: number;
+  completed: boolean;
 }
 
 export function Activity({
   id,
   steps,
   renderActivityCompletion,
+  currTaskStatus,
 }: ActivityProps) {
   if (!steps) return <p className="text-xl"> Could not generate activity.</p>;
 
-  const [stepsCompleted, setStepsCompleted] = useState(0);
+  const [taskStatuses, setTaskStatuses] = useState(currTaskStatus); // Local state for task statuses
+  const [stepsCompleted, setStepsCompleted] = useState<number>(
+    currTaskStatus.filter((task) => task.completed).length
+  );
   const spanElem = useRef<HTMLSpanElement>(null);
 
   const [verificationImage, setVerificationImage] = useState<File>();
 
-  function updateSteps(evt: React.ChangeEvent<HTMLInputElement>) {
-    if (evt.target.checked) setStepsCompleted(stepsCompleted + 1);
-    else setStepsCompleted(stepsCompleted - 1);
+  async function updateSteps(
+    evt: React.ChangeEvent<HTMLInputElement>,
+    taskId: number,
+    index: number
+  ) {
+    const taskCompleted = evt.target.checked;
+
+    setStepsCompleted((prev) => (taskCompleted ? prev + 1 : prev - 1));
+
+    // Update local state to re-render the checkboxes
+    setTaskStatuses((prevStatuses) =>
+      prevStatuses.map((task, i) =>
+        i === index ? { ...task, completed: taskCompleted } : task
+      )
+    );
+
+    // Send request to update task status
+    try {
+      await updateTaskStatus(taskId, taskCompleted);
+    } catch (error) {
+      console.error("Failed to update task status", error);
+    }
   }
 
   function handleImageCapture(evt: React.ChangeEvent<HTMLInputElement>) {
@@ -31,7 +61,7 @@ export function Activity({
     }
   }
 
-  async function submitVerificaton(
+  async function submitVerification(
     evt: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) {
     evt.preventDefault();
@@ -40,7 +70,6 @@ export function Activity({
       setTimeout(() => spanElem.current?.classList.add("hidden"), 5000);
     } else {
       const fileReader = new FileReader();
-      const renderActivityComplete = renderActivityCompletion;
       const activityId = id;
       if (verificationImage) fileReader.readAsDataURL(verificationImage);
       fileReader.onloadend = async () => {
@@ -49,8 +78,7 @@ export function Activity({
           steps.step3,
           activityId
         );
-        console.log(resp);
-        if (resp.verification === "true") renderActivityComplete();
+        if (resp.verification === "true") renderActivityCompletion();
       };
     }
   }
@@ -62,24 +90,45 @@ export function Activity({
           <h1> Your Task : </h1>
           <ol>
             <li>
-              <input type="checkbox" className="step1" onChange={updateSteps} />
+              <input
+                type="checkbox"
+                className="step1"
+                onChange={(evt) =>
+                  updateSteps(evt, currTaskStatus[0].taskId, 0)
+                }
+                id={currTaskStatus[0].taskId.toString()}
+                checked={taskStatuses[0].completed} // Use local state to control checked status
+              />
               <label htmlFor="step1">
-                {" "}
-                <strong>Step 1:</strong> {steps.step1}{" "}
+                <strong>Step 1:</strong> {steps.step1}
               </label>
             </li>
             <li>
-              <input type="checkbox" className="step2" onChange={updateSteps} />
+              <input
+                type="checkbox"
+                className="step2"
+                onChange={(evt) =>
+                  updateSteps(evt, currTaskStatus[1].taskId, 1)
+                }
+                id={currTaskStatus[1].taskId.toString()}
+                checked={taskStatuses[1].completed}
+              />
               <label htmlFor="step2">
-                {" "}
-                <strong>Step 2:</strong> {steps.step2}{" "}
+                <strong>Step 2:</strong> {steps.step2}
               </label>
             </li>
             <li>
-              <input type="checkbox" className="step3" onChange={updateSteps} />
+              <input
+                type="checkbox"
+                className="step3"
+                onChange={(evt) =>
+                  updateSteps(evt, currTaskStatus[2].taskId, 2)
+                }
+                id={currTaskStatus[2].taskId.toString()}
+                checked={taskStatuses[2].completed}
+              />
               <label htmlFor="step3">
-                {" "}
-                <strong>Step 3:</strong> {steps.step3}{" "}
+                <strong>Step 3:</strong> {steps.step3}
               </label>
               <br />
               <input
@@ -90,7 +139,7 @@ export function Activity({
               />
             </li>
           </ol>
-          <button type="submit" className="mt-4" onClick={submitVerificaton}>
+          <button type="submit" className="mt-4" onClick={submitVerification}>
             Proceed
           </button>
         </form>

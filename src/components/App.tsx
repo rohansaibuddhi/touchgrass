@@ -8,7 +8,7 @@ import Header from "./Header";
 import { fetchActivities, storeActivity } from "../services/activities";
 import Profile, { type User } from "./Profile";
 import { fetchUser } from "../services/users";
-import { Activity as CurrActivity } from "./Activity";
+import { Activity as CurrActivity, type TaskStatus } from "./Activity";
 import ActivityCompletion from "./ActivityCompletion";
 
 function doSomething() {}
@@ -41,6 +41,7 @@ export default function App() {
   const [pastActivities, setPastActivities] = useState<Activity[]>([]);
   const [user, setUser] = useState<User>();
   const [currActivity, setCurrActivity] = useState<Number>(-1);
+  const [taskStatus, setTaskStatus] = useState([]);
 
   //useEffect with empty dependency to run once on page load to fetch existing activity if any
   useEffect(() => {
@@ -57,7 +58,8 @@ export default function App() {
         currLocation.longitude
       );
       setCurrentTask(task);
-      storeActivity(task);
+      const currTaskIds = await storeActivity(task);
+      setTaskStatus(currTaskIds);
     }
 
     setDisplayOptions(DisplayOptions.ShowTouchGrassOptions);
@@ -80,7 +82,15 @@ export default function App() {
           //get tasks of incomplete activity
           setCurrActivity(activity.id);
           const currActivity = await fetchCurrentTask(activity.id);
+          //console.log(currActivity);
+          const currTaskStatus = currActivity.map(
+            (task: { id: Number; completed: boolean }) => ({
+              taskId: task.id,
+              completed: task.completed,
+            })
+          );
 
+          //console.log(currTaskStatus[0].taskId);
           const currTask: ActivitySteps = {
             step1: currActivity[0].description,
             step2: currActivity[1].description,
@@ -90,6 +100,7 @@ export default function App() {
             completed: activity.completed,
           };
           setCurrentTask(currTask);
+          setTaskStatus(currTaskStatus);
         }
       });
     }
@@ -141,6 +152,7 @@ export default function App() {
         currentTask && (
           <CurrActivity
             steps={currentTask}
+            currTaskStatus={taskStatus}
             renderActivityCompletion={renderActivityCompletion}
             id={currActivity}
           />

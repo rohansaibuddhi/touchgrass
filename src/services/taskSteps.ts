@@ -35,3 +35,22 @@ export const fetchCurrentTask = async (activityId: Number) => {
 
   return response.json();
 };
+
+export const updateTaskStatus = async (
+  taskId: Number,
+  taskCompleted: boolean
+) => {
+  const response = await fetch(`${baseUrl}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ taskId: taskId, taskCompleted: taskCompleted }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update task status");
+  }
+
+  return response.json();
+};

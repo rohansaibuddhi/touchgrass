@@ -44,17 +44,17 @@ export const GET: APIRoute = async ({ cookies }) => {
 export const POST: APIRoute = async ({ request, cookies }) => {
   const session = cookies.get("session");
 
-  let id = null;
+  let uid = null;
   if (session) {
-    id = await kv.get(session?.value);
+    uid = await kv.get(session?.value);
   }
 
-  if (id) {
+  if (uid) {
     const data: activityData = await request.json();
     let date = new Date();
 
     const activity = {
-      userid: parseInt(id),
+      userid: parseInt(uid),
       summary: data.summary,
       requestedOn: date.toISOString(),
       location: data.location,
@@ -75,9 +75,18 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         completed: false,
       };
     }
-    const taskRec = await db.insert(tasks).values(tasksArr);
 
-    return new Response(JSON.stringify({ actRec }), { status: 200 });
+    //return arr of taskIds
+    const taskRec = await db
+      .insert(tasks)
+      .values(tasksArr)
+      .returning({ taskId: tasks.id, taskCompletion: tasks.completed });
+    const taskIds = taskRec.map((taskId, taskCompletion) => ({
+      taskId: taskId,
+      taskCompletion: taskCompletion,
+    }));
+
+    return new Response(JSON.stringify({ taskIds }), { status: 200 });
   }
 
   return new Response(JSON.stringify({}), { status: 403 });
@@ -88,7 +97,7 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
 
   const id = body.id;
 
-  const genAI = new GoogleGenerativeAI(process.env.VITE_GEMINI_KEY);
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const type = body.image.split(";base64,")[0].split("data:")[1];
