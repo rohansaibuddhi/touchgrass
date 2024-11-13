@@ -10,6 +10,7 @@ import Profile, { type User } from "./Profile";
 import { fetchUser } from "../services/users";
 import { Activity as CurrActivity, type TaskStatus } from "./Activity";
 import ActivityCompletion from "./ActivityCompletion";
+import { logout } from "../services/authentication";
 
 function doSomething() {}
 
@@ -112,7 +113,7 @@ export default function App() {
   }
 
   async function handleLogout() {
-    window.location.href = "/signout";
+    await logout();
   }
 
   function renderActivityCompletion() {
