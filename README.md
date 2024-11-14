@@ -31,3 +31,14 @@ All known issues are issues with respect to the final deliverable but they are n
 - CSS broken on Firefox (Tailwind)
 - User profile is a static image, final deliverable will be pulling profile pic from Google
 - User profile data is also static, set in the database, final deliverable will pull it from Google
+
+## MVP Navigation
+
+Login using the following users:
+
+- chris@gmail.com
+- khanh@gmail.com
+
+Login to the app, allow location, click on Yes/ Yes Please
+Follow the instructions, for the MVP, you can upload any Google image that satisfies the image criteria
+The LLM will verify the image and your task will be complete!
