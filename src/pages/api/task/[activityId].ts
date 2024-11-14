@@ -5,8 +5,6 @@ import { eq } from "drizzle-orm";
 export const prerender = false;
 
 export const GET: APIRoute = async ({ params }: APIContext) => {
-  //console.log(params.activityId);
-
   const stringId = params.activityId;
   if (!stringId) {
     return new Response(JSON.stringify({ error: "Activity ID is required" }), {

@@ -9,7 +9,6 @@ export const prerender = false;
 export const POST: APIRoute = async ({ request }) => {
   const formBody = await request.formData();
   const parsedData = Object.fromEntries(formBody.entries());
-  //console.log(parsedData);
   if (formBody.get("latitude") && formBody.get("longitude")) {
     const lat = Number(formBody.get("latitude"));
     const long = Number(formBody.get("longitude"));

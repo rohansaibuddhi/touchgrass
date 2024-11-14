@@ -14,7 +14,6 @@ if(sessionCookie){
             expires: new Date("December 17, 1995 03:24:00"),
             path: "/",
         });
-		console.log(Astro.cookies.get("session"))
 		return Astro.redirect("/signin")
     } 
 } else {

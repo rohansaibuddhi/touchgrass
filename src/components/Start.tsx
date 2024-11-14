@@ -46,7 +46,6 @@ export default function Start({ renderActivityDetails }: StartProps) {
 
   useEffect(() => {
     if (location) {
-      console.log("location updated");
       renderActivityDetails(location);
     }
   }, [location]);

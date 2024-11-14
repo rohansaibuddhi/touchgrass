@@ -37,7 +37,6 @@ export const DELETE: APIRoute = async ({ redirect, cookies }) => {
     });
     if (session) {
       await kv.del(session);
-      console.log("cookie:", await kv.get(session));
     }
   }
 
