@@ -80,13 +80,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const taskRec = await db
       .insert(tasks)
       .values(tasksArr)
-      .returning({ taskId: tasks.id, taskCompletion: tasks.completed });
-    const taskIds = taskRec.map((taskId, taskCompletion) => ({
-      taskId: taskId,
-      taskCompletion: taskCompletion,
-    }));
+      .returning({ taskId: tasks.id, completed: tasks.completed });
 
-    return new Response(JSON.stringify({ taskIds }), { status: 200 });
+    return new Response(JSON.stringify(taskRec), { status: 200 });
   }
 
   return new Response(JSON.stringify({}), { status: 403 });

@@ -7,7 +7,8 @@ interface ActivityProps {
   id: Number;
   steps: ActivitySteps;
   renderActivityCompletion: Function;
-  currTaskStatus: TaskStatus[];
+  taskStatus: TaskStatus[];
+  setTaskStatus: Function;
 }
 
 export interface TaskStatus {
@@ -19,14 +20,10 @@ export function Activity({
   id,
   steps,
   renderActivityCompletion,
-  currTaskStatus,
+  taskStatus,
+  setTaskStatus,
 }: ActivityProps) {
   if (!steps) return <p className="text-xl"> Could not generate activity.</p>;
-
-  const [taskStatuses, setTaskStatuses] = useState(currTaskStatus); // Local state for task statuses
-  const [stepsCompleted, setStepsCompleted] = useState<number>(
-    currTaskStatus.filter((task) => task.completed).length
-  );
   const spanElem = useRef<HTMLSpanElement>(null);
 
   const [verificationImage, setVerificationImage] = useState<File>();
@@ -38,10 +35,8 @@ export function Activity({
   ) {
     const taskCompleted = evt.target.checked;
 
-    setStepsCompleted((prev) => (taskCompleted ? prev + 1 : prev - 1));
-
     // Update local state to re-render the checkboxes
-    setTaskStatuses((prevStatuses) =>
+    setTaskStatus((prevStatuses: TaskStatus[]) =>
       prevStatuses.map((task, i) =>
         i === index ? { ...task, completed: taskCompleted } : task
       )
@@ -65,7 +60,11 @@ export function Activity({
     evt: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) {
     evt.preventDefault();
-    if (stepsCompleted !== 3) {
+    if (
+      !taskStatus[1].completed ||
+      !taskStatus[1].completed ||
+      !taskStatus[1].completed
+    ) {
       spanElem.current?.classList.remove("hidden");
       setTimeout(() => spanElem.current?.classList.add("hidden"), 5000);
     } else {
@@ -93,11 +92,9 @@ export function Activity({
               <input
                 type="checkbox"
                 className="step1"
-                onChange={(evt) =>
-                  updateSteps(evt, currTaskStatus[0].taskId, 0)
-                }
-                id={currTaskStatus[0].taskId.toString()}
-                checked={taskStatuses[0].completed} // Use local state to control checked status
+                onChange={(evt) => updateSteps(evt, taskStatus[0].taskId, 0)}
+                id={taskStatus[0].taskId.toString()}
+                checked={taskStatus[0].completed} // Use local state to control checked status
               />
               <label htmlFor="step1">
                 <strong>Step 1:</strong> {steps.step1}
@@ -107,11 +104,9 @@ export function Activity({
               <input
                 type="checkbox"
                 className="step2"
-                onChange={(evt) =>
-                  updateSteps(evt, currTaskStatus[1].taskId, 1)
-                }
-                id={currTaskStatus[1].taskId.toString()}
-                checked={taskStatuses[1].completed}
+                onChange={(evt) => updateSteps(evt, taskStatus[1].taskId, 1)}
+                id={taskStatus[1].taskId.toString()}
+                checked={taskStatus[1].completed}
               />
               <label htmlFor="step2">
                 <strong>Step 2:</strong> {steps.step2}
@@ -121,11 +116,9 @@ export function Activity({
               <input
                 type="checkbox"
                 className="step3"
-                onChange={(evt) =>
-                  updateSteps(evt, currTaskStatus[2].taskId, 2)
-                }
-                id={currTaskStatus[2].taskId.toString()}
-                checked={taskStatuses[2].completed}
+                onChange={(evt) => updateSteps(evt, taskStatus[2].taskId, 2)}
+                id={taskStatus[2].taskId.toString()}
+                checked={taskStatus[2].completed}
               />
               <label htmlFor="step3">
                 <strong>Step 3:</strong> {steps.step3}
