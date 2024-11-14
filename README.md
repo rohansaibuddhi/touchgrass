@@ -40,5 +40,5 @@ Login using the following users:
 - khanh@gmail.com
 
 Login to the app, allow location, click on Yes/ Yes Please
-Follow the instructions, for the MVP, you can upload any Google image that satisfies the image criteria
+Follow the instructions, for the MVP, you can upload any Google image that satisfies the image criteria.
 The LLM will verify the image and your task will be complete!
