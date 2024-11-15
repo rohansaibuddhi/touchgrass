@@ -3,7 +3,6 @@
 A cool app for introverts to go outside and touch grass.
 This serves as the course project for CS 484.
 
-Please read the
 
 ## MVP Functionality
 
@@ -24,7 +23,7 @@ As part of the MVP functionality, the following has been implemented:
 
 ## Known Issues
 
-All known issues are issues with respect to the final deliverable but they are not part of the MVP as promised:
+All known issues are issues with respect to the final deliverable and do not hinder the functionalities we had given as our MVP:
 
 - login is using test accounts
 - user registration is not implemented
