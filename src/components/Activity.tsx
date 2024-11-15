@@ -77,7 +77,8 @@ export function Activity({
           steps.step3,
           activityId
         );
-        if (resp.verification === "true") renderActivityCompletion();
+        if (resp.verification.toLowerCase().includes("true"))
+          renderActivityCompletion();
       };
     }
   }

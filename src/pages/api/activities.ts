@@ -100,7 +100,7 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
   const image = body.image.split(";base64,")[1];
 
   const prompt =
-    "This user was asked perform a certain action. If the image corresponds to the given action respond with true if verification is successful else false. The action is: " +
+    "This user was asked perform a certain action. If the image corresponds to the given action respond with 'true' if verification is successful else 'false'. The action is: " +
     body.activity;
 
   const generatedContent = await model.generateContent([
@@ -113,7 +113,7 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
     },
   ]);
 
-  if (generatedContent.response.text() === "true") {
+  if (generatedContent.response.text().toLowerCase().includes("true")) {
     await db
       .update(activities)
       .set({ completed: true })
