@@ -1,24 +1,26 @@
 import type { APIRoute } from "astro";
 import { kv } from "../../config/kv.connection";
-import { db } from "../../config/db.connection";
-import { users } from "../../models/users";
-import { eq } from "drizzle-orm";
+import jwt from "jsonwebtoken";
 
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request, cookies }) => {
   const session = cookies.get("session");
-  let id = null;
+  let idToken = null;
   if (session) {
-    id = await kv.get(session?.value);
+    idToken = await kv.get(session?.value);
   }
 
-  if (id) {
-    const rec = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, parseInt(id)));
-    return new Response(JSON.stringify(rec[0]), { status: 200 });
+  if (idToken) {
+    const idTokenRes = (await jwt.decode(idToken, {
+      complete: true,
+    })) as jwt.JwtPayload;
+    const user = {
+      name: idTokenRes.name,
+      email: idTokenRes.email,
+    };
+
+    return new Response(JSON.stringify(user), { status: 200 });
   }
 
   return new Response(JSON.stringify({}), { status: 403 });

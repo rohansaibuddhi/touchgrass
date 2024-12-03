@@ -31,17 +31,9 @@ export const prerender = false
             <h1 class="text-center mb-4">
                 Login to Touch Grass
             </h1>
-            <form action = "/api/authentication" method = "post" class="whitebox mb-4">
-                <label for="username" class="block mb-2">
-                    Username
-                </label>
-                <input name="uname" type= "text" placeholder = "Username" class="mb-3"/> 
-                <label for="pwd" class="block mb-2">
-                    Password
-                </label>
-                <input name="pwd" type = "password" placeholder = "*********" class="mb-3"/>
+            <form action = "/api/auth/auth0" method = "post" class="whitebox mb-4">
                 <button type = "submit">
-                    Sign In
+                    Sign In Using Auth0
                 </button>
             </form>
             <p class="copyright m-4 text-center">
