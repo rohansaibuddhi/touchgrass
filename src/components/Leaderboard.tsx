@@ -49,9 +49,9 @@ export default function Leaderboard({ leaderboard }: LeaderboardProps) {
                     </tr>
                 </thead>
                 <tbody>
-                    {leaderboard.map((elem) => (
+                    {leaderboard.map((elem, index) => (
                         <Leadercard
-                            rank={elem.rank}
+                            rank={index + 1}
                             name={elem.name}
                             score={elem.score}
                         />

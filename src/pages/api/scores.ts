@@ -16,7 +16,6 @@ export const GET: APIRoute = async ({ request, cookies, redirect }) => {
 
         const scores = await db
             .select({
-                rank: sql<number>`row_number() over ()`.mapWith(Number),
                 name: users.name,
                 score: sql<number>`sum(${activities.points})`.mapWith(Number),
             })

@@ -1,16 +1,16 @@
 create table users(
   id serial primary key,
-  name varchar(20),
-  email varchar(20),
+  name varchar(50),
+  email varchar(50),
   dob date,
-  location varchar(20)
+  location varchar(50)
 );
 
 create table activities(
   id serial primary key,
   user_id integer,
-  caption varchar(20),
-  location varchar(20),
+  caption varchar(200),
+  location varchar(50),
   requested_on date,
   completed boolean,
   points integer
@@ -21,7 +21,7 @@ create table tasks (
 
   id serial primary key,
   activity_id integer,
-  description varchar(50),
+  description varchar(500),
   completed boolean
 );
 
