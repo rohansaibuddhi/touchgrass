@@ -13,6 +13,7 @@ export const GET: APIRoute = async ({ request, cookies, redirect }) => {
         {
             name: decodedToken.name,
             email: decodedToken.email,
+            imageUrl: decodedToken.picture,
         },
         200,
     );

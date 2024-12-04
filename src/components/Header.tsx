@@ -6,6 +6,7 @@ interface HeaderProps {
     handleLogout: Function;
     renderNewActivity: Function;
     renderLeaderboard: Function;
+    imageUrl: string;
 }
 
 export default function Header({
@@ -14,6 +15,7 @@ export default function Header({
     handleLogout,
     renderNewActivity,
     renderLeaderboard,
+    imageUrl,
 }: HeaderProps) {
     const [showMenu, setShowMenu] = useState(false);
     let menuStyles =
@@ -35,7 +37,7 @@ export default function Header({
                 Touch Grass
             </span>
             <img
-                src="/User.jpg"
+                src={imageUrl}
                 className="rounded-full h-10 w-10 m-2 justify-self-end"
                 onClick={(evt) => setShowMenu(!showMenu)}
             />

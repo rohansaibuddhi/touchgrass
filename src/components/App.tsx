@@ -56,7 +56,12 @@ export default function App() {
 
     useEffect(() => {
         getCurrentActivity();
+        getProfile();
     }, []);
+
+    async function getProfile() {
+        setUser(await fetchUser());
+    }
 
     function renderNewActivity() {
         setDisplayOptions(DisplayOptions.ShowActivityDetails);
@@ -77,7 +82,6 @@ export default function App() {
     }
 
     async function renderProfile() {
-        setUser(await fetchUser());
         setDisplayOptions(DisplayOptions.ShowProfile);
     }
 
@@ -142,6 +146,7 @@ export default function App() {
                 handleLogout={handleLogout}
                 renderNewActivity={renderNewActivity}
                 renderLeaderboard={renderLeaderboard}
+                imageUrl={user?.imageUrl}
             />
 
             {/** start of conditionally rendered content */}
