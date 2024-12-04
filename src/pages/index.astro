@@ -2,7 +2,8 @@
 import "../styles/global.css"
 import "../styles/elements.css"
 import "../styles/classes.css"
-import jwt, { type JwtPayload } from "jsonwebtoken";
+import jwt, { type JwtHeader, type JwtPayload } from "jsonwebtoken";
+import jwksClient from "jwks-rsa";
 import App from "../components/App";
 import { kv } from "../config/kv.connection";
 import { v4 as uuidv4 } from "uuid";
@@ -32,7 +33,12 @@ if (!code && session && !await kv.get(session)) {
   });
   console.log("Fake session detected")
   return Astro.redirect("/signin");
-} 
+} else if (!code && session) {
+	const idToken = await kv.get(session);
+	// TODO: verify the token here too along with the validity time
+}
+
+
 
 // OAuth redirect
 if (!session && code) {
@@ -55,13 +61,14 @@ if (!session && code) {
   registerUser(decoded?.name, decoded?.email, decoded?.sub);
   
 
-  // TODO: verify ID Token
-  // const client = jwksClient({
-  //   jwksUri: process.env.AUTH0_ENDPOINT + "/.well-known/jwks.json",
-  // });
-  // const kid = jwt.decode(idToken)
-  // const publicKey = (await client.getSigningKey(kid)).getPublicKey();
-  // jwt.verify(idToken, publicKey);
+  const client = jwksClient({
+    jwksUri: process.env.AUTH0_ENDPOINT + "/.well-known/jwks.json",
+  });
+  const header = jwt.decode(idToken, {complete: true})?.header as JwtHeader
+  const publicKey = (await client.getSigningKey(header.kid)).getPublicKey();
+  const verifiedPayload = jwt.verify(idToken, publicKey);
+
+  // TODO: add try catch in case verification fails, also add a check for time based validity before the verification
 
   const session = uuidv4().toString();
   await kv.set(session, idToken);
@@ -72,11 +79,6 @@ if (!session && code) {
   });
 }
 
-// session stale
-// if (session) {
-//   const idToken = await kv.get(session);
-  // TODO: verify ID Token, if incorrect, delete cookies and redirect to signin
-// }
 ---
 
 <html lang="en">
