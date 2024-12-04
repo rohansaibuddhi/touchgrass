@@ -9,6 +9,23 @@ import {
 } from "@google/generative-ai";
 import type { AstroCookies } from "astro";
 
+export interface JWTToken {
+    given_name: string;
+    family_name: string;
+    nickname: string;
+    name: string;
+    picture: string;
+    updated_at: string;
+    email: string;
+    email_verified: boolean;
+    iss: string;
+    aud: string;
+    iat: number;
+    exp: number;
+    sub: string;
+    sid: string;
+}
+
 export async function registerUser(name: string, email: string, sub: string) {
     const ret = await db
         .select({ id: users.id })

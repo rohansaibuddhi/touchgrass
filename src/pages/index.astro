@@ -7,7 +7,7 @@ import jwksClient from "jwks-rsa";
 import App from "../components/App";
 import { kv } from "../config/kv.connection";
 import { v4 as uuidv4 } from "uuid";
-import { registerUser } from "../commons/utils";
+import { registerUser, type JWTToken } from "../commons/utils";
 
 export const prerender = false
 
@@ -57,7 +57,7 @@ if (!session && code) {
     body: formData,
   });
   const idToken = (await tokenResponse.json()).id_token;
-  const decoded = jwt.decode(idToken) as JwtPayload;
+  const decoded = jwt.decode(idToken) as JWTToken;
   registerUser(decoded?.name, decoded?.email, decoded?.sub);
   
 

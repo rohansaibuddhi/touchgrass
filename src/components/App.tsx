@@ -45,7 +45,11 @@ export default function App() {
 
     const [currentTask, setCurrentTask] = useState<ActivitySteps>();
     const [pastActivities, setPastActivities] = useState<Activity[]>([]);
-    const [user, setUser] = useState<User>();
+    const [user, setUser] = useState<User>({
+        name: "Placeholder",
+        email: "placeholder",
+        imageUrl: "/User.jpg",
+    });
     const [currActivity, setCurrActivity] = useState<Number>(-1);
     const [taskStatus, setTaskStatus] = useState<TaskStatus[]>([
         { taskId: 0, completed: false },

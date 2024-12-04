@@ -5,7 +5,11 @@ import { db } from "../../config/db.connection.ts";
 import { eq } from "drizzle-orm";
 import "dotenv/config";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { buildResponse, isValidSession } from "../../commons/utils.ts";
+import {
+    buildResponse,
+    isValidSession,
+    type JWTToken,
+} from "../../commons/utils.ts";
 import { users } from "../../models/users.ts";
 
 interface activityData {
@@ -25,7 +29,7 @@ export const prerender = false;
 
 export const GET: APIRoute = async ({ cookies, redirect }) => {
     try {
-        const decodedToken = await isValidSession(cookies);
+        const decodedToken = (await isValidSession(cookies)) as JWTToken;
         if (!decodedToken) {
             return redirect("/signin");
         }
@@ -54,7 +58,7 @@ export const GET: APIRoute = async ({ cookies, redirect }) => {
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     try {
-        const decodedToken = await isValidSession(cookies);
+        const decodedToken = (await isValidSession(cookies)) as JWTToken;
         if (!decodedToken) {
             return redirect("/signin");
         }
