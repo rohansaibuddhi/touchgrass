@@ -2,48 +2,40 @@
 import "../styles/global.css"
 import "../styles/elements.css"
 import "../styles/classes.css"
+import jwt, { type JwtPayload } from "jsonwebtoken";
 import App from "../components/App";
-import jwt from "jsonwebtoken";
-import jwksClient from "jwks-rsa";
 import { kv } from "../config/kv.connection";
 import { v4 as uuidv4 } from "uuid";
+import { registerUser } from "../commons/utils";
 
-const url = new URL(Astro.request.url);
-const baseUrl = url.origin;
+export const prerender = false
 
-
-//get current URL from address bar
 const currentUrl = Astro.request.url;
-//console.log(currentUrl)
-
-//logic to handle callback from auth0
 const code = new URL(currentUrl).searchParams?.get("code")
 const state = new URL(currentUrl).searchParams?.get("state")
 const storedState = Astro.cookies.get("auth0_state")?.value
+const session = Astro.cookies.get("session")?.value
 
-//console.log(state, storedState, code)
-if(!code || (state != storedState)){
-	const sessionCookie = Astro.cookies.get("session")?.value
-	if(sessionCookie){
-		if (!await kv.get(sessionCookie)) {
-			Astro.cookies.set("session", "nop", {
-				httpOnly: true,
-				expires: new Date("December 17, 1995 03:24:00"),
-				path: "/",
-			});
-			return Astro.redirect("/signin")
-		} 
-	} else {
-		Astro.cookies.delete("auth0_state", { path: "/" });
-		return Astro.redirect("/signin")
-	}
+// no session and no OAuth redirect
+if ((!session && !code) || (code && state !== storedState)) {
+	console.log("Invalid Session")
+  return Astro.redirect("/signin");
 }
-//console.log("Sending:", JSON.stringify({ code }));
-  if (!code) {
-    return new Response("Invalid code", { status: 302 });
-  }
-  //console.log("Received Code:", code);
-  const tokenUrl = "https://dev-2mxcro8letr8o7ed.us.auth0.com/oauth/token";
+
+// fake session: this should not happen, but just in case
+if (!code && session && !await kv.get(session)) {
+  const idToken = await kv.get(session);
+  Astro.cookies.set("session", "nop", {
+    httpOnly: true,
+    expires: new Date("December 17, 1995 03:24:00"),
+    path: "/",
+  });
+  console.log("Fake session detected")
+  return Astro.redirect("/signin");
+} 
+
+// OAuth redirect
+if (!session && code) {
   const formData = new URLSearchParams();
   formData.append("grant_type", "authorization_code");
   formData.append("client_id", process.env.AUTH0_CLIENT_ID);
@@ -51,63 +43,40 @@ if(!code || (state != storedState)){
   formData.append("redirect_uri", process.env.AUTH0_CALLBACK_URL);
   formData.append("code", code);
 
-  const fetchToken = await fetch(tokenUrl, {
+  const tokenResponse = await fetch(process.env.AUTH0_ENDPOINT + "/oauth/token", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: formData,
   });
+  const idToken = (await tokenResponse.json()).id_token;
+  const decoded = jwt.decode(idToken) as JwtPayload;
+  registerUser(decoded?.name, decoded?.email, decoded?.sub);
+  
 
-  const fetchTokenRes = await fetchToken.json();
-  //gives us access_token, id_token, scope, expires_in, token_type
-  //console.log("fetch token res", fetchToken.status);
-  const access_token = fetchTokenRes.access_token;
-  const id_token = fetchTokenRes.id_token;
-  //console.log(access_token);
-  //TODO: store id token in kv
+  // TODO: verify ID Token
+  // const client = jwksClient({
+  //   jwksUri: process.env.AUTH0_ENDPOINT + "/.well-known/jwks.json",
+  // });
+  // const kid = jwt.decode(idToken)
+  // const publicKey = (await client.getSigningKey(kid)).getPublicKey();
+  // jwt.verify(idToken, publicKey);
 
-  const client = jwksClient({
-    jwksUri: "https://dev-2mxcro8letr8o7ed.us.auth0.com/.well-known/jwks.json",
-  });
-
-  // Function to get the signing key
-  function getKey(header, callback) {
-    client.getSigningKey(header.kid, (err, key) => {
-      if (err) {
-        return callback(err);
-      }
-      const signingKey = key?.getPublicKey();
-      callback(null, signingKey);
-    });
-  }
-
-  // Verify the token
-  async function verifyToken(idToken: string): Promise<unknown> {
-    return new Promise((resolve, reject) => {
-      jwt.verify(idToken, getKey, {}, (err, decoded) => {
-        if (err) {
-          reject(new Error(`Token verification failed: ${err.message}`));
-        } else {
-          resolve(decoded);
-        }
-      });
-    });
-  }
-
-  const userInfo = await verifyToken(id_token);
-  //console.log(userInfo);
   const session = uuidv4().toString();
-  await kv.set(session, id_token);
+  await kv.set(session, idToken);
   Astro.cookies.set("session", session, {
     httpOnly: true,
     maxAge: 5 * 24 * 60 * 60,
     path: "/",
   });
-  console.log("Session cookie set:", session);
-  Astro.redirect("/");
+}
 
-export const prerender = false
+// session stale
+// if (session) {
+//   const idToken = await kv.get(session);
+  // TODO: verify ID Token, if incorrect, delete cookies and redirect to signin
+// }
 ---
 
 <html lang="en">
