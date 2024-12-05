@@ -7,7 +7,7 @@ import { buildResponse, isValidSession } from "../../commons/utils";
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ request, cookies, redirect }) => {
+export const GET: APIRoute = async ({ cookies, redirect }) => {
     try {
         const decodedToken = await isValidSession(cookies);
         if (!decodedToken) {

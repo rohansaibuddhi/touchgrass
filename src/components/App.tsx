@@ -45,11 +45,7 @@ export default function App() {
 
     const [currentTask, setCurrentTask] = useState<ActivitySteps>();
     const [pastActivities, setPastActivities] = useState<Activity[]>([]);
-    const [user, setUser] = useState<User>({
-        name: "Placeholder",
-        email: "placeholder",
-        imageUrl: "/User.jpg",
-    });
+    const [user, setUser] = useState<User>();
     const [currActivity, setCurrActivity] = useState<Number>(-1);
     const [taskStatus, setTaskStatus] = useState<TaskStatus[]>([
         { taskId: 0, completed: false },
@@ -150,13 +146,15 @@ export default function App() {
                 handleLogout={handleLogout}
                 renderNewActivity={renderNewActivity}
                 renderLeaderboard={renderLeaderboard}
-                imageUrl={user?.imageUrl}
+                imageUrl={user?.imageUrl ? user.imageUrl : "/User.jpeg"}
             />
 
             {/** start of conditionally rendered content */}
 
             {displayOptions === DisplayOptions.ShowActivityDetails && (
-                <h1 className="mt-20">Welcome to Touch Grass</h1>
+                <h1 className="mt-20 flex mb-5 text-center justify-center">
+                    Welcome to Touch Grass
+                </h1>
             )}
 
             {displayOptions === DisplayOptions.ShowActivityDetails &&

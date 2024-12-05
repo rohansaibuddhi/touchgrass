@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { type ActivitySteps } from "./Start";
 import { verifyActivity, updateTaskStatus } from "../commons/services";
+import Button from "./Button";
 
 interface ActivityProps {
     id: Number;
@@ -24,7 +25,17 @@ export function Activity({
 }: ActivityProps) {
     if (!steps) return <p className="text-xl"> Could not generate activity.</p>;
     const spanElem = useRef<HTMLSpanElement>(null);
-
+    const popupElem = useRef<HTMLDivElement>(null);
+    const btnDisabled =
+        !taskStatus[0].completed ||
+        !taskStatus[1].completed ||
+        !taskStatus[2].completed;
+    const btnEnabled =
+        taskStatus[0].completed &&
+        taskStatus[1].completed &&
+        taskStatus[2].completed
+            ? " "
+            : " disabled:bg-gray-500 disabled:hover:bg-gray-700";
     const [verificationImage, setVerificationImage] = useState<File>();
 
     async function updateSteps(
@@ -59,31 +70,29 @@ export function Activity({
         evt: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     ) {
         evt.preventDefault();
-        if (
-            !taskStatus[1].completed ||
-            !taskStatus[1].completed ||
-            !taskStatus[1].completed
-        ) {
-            spanElem.current?.classList.remove("hidden");
-            setTimeout(() => spanElem.current?.classList.add("hidden"), 5000);
-        } else {
-            const fileReader = new FileReader();
-            const activityId = id;
-            if (verificationImage) fileReader.readAsDataURL(verificationImage);
-            fileReader.onloadend = async () => {
-                const resp: any = await verifyActivity(
-                    fileReader.result,
-                    steps.step3,
-                    activityId,
-                );
-                if (resp.verification.toLowerCase().trim() === "true")
-                    renderActivityCompletion();
-            };
-        }
+        const fileReader = new FileReader();
+        const activityId = id;
+        if (verificationImage) fileReader.readAsDataURL(verificationImage);
+        fileReader.onloadend = async () => {
+            const resp: any = await verifyActivity(
+                fileReader.result,
+                steps.step3,
+                activityId,
+            );
+            if (resp.verification.toLowerCase().trim() === "true")
+                renderActivityCompletion();
+            else {
+                popupElem.current?.classList.remove("hidden");
+
+                setTimeout(() => {
+                    popupElem.current?.classList.add("hidden");
+                }, 5000);
+            }
+        };
     }
 
     return (
-        <div className="flex justify-center place-items-center items-center min-h-screen ">
+        <div className="flex justify-center place-items-center items-center ">
             <div className="flex max-w-2xl max-h-4xl min-h-96 w-full place-items-center whitebox">
                 <form id="tasks">
                     <h1> Your Task : </h1>
@@ -138,17 +147,21 @@ export function Activity({
                             />
                         </li>
                     </ol>
-                    <button
-                        type="submit"
-                        className="mt-4"
-                        onClick={submitVerification}
-                    >
-                        Proceed
-                    </button>
+                    <Button
+                        disable={btnDisabled}
+                        text="Proceed"
+                        alignment={"mt-4" + btnEnabled}
+                        clickHandler={submitVerification}
+                    />
                 </form>
-                <span className="hidden" ref={spanElem}>
-                    You need to complete all activities before submitting!
-                </span>
+            </div>
+            <div
+                id="error-popup"
+                className="hidden z-50 absolute top-40 w-full right-0 p-5 text-center bg-red-300 text-red-800"
+                ref={popupElem}
+            >
+                Unable to verify activity. Please try again
+                {/* {errorResponse} */}
             </div>
         </div>
     );

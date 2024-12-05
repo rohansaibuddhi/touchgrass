@@ -52,7 +52,7 @@ export default function Start({ renderActivityDetails }: StartProps) {
 
     return (
         <div>
-            <div className="flex items-center justify-center min-h-screen">
+            <div className="flex items-center justify-center ">
                 <section className="whitebox w-full max-w-md">
                     <form id="touchgrass" className="items-center">
                         <h1>Do you want to touch grass today?</h1>

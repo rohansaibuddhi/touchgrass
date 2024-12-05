@@ -1,5 +1,3 @@
-import Button from "./Button";
-
 function TimelineMarker() {
     return (
         <div
@@ -30,28 +28,26 @@ interface HistoryProps {
 
 export default function History({ activities, handleRetry }: HistoryProps) {
     return (
-        <div
-            id="history"
-            className="w-full max-w-md justify-self-center mt-20 bg-white shadow-md rounded px-8 pt-6 pb-8"
-        >
-            <ol className="relative border-s border-gray-700">
-                {activities.map((item) => (
-                    <li key="{item.id}" className="mb-10 ms-4">
-                        <TimelineMarker />
-                        <h3>{item.location}</h3>
-                        <p className="text-base font-normal text-gray-400">
-                            {item.summary}
-                        </p>
-                        {!item.completed && (
-                            <Button
-                                text="Try Again"
-                                clickHandler={(evt) => handleRetry(evt.target)}
-                                alignment="mt-2"
-                            />
-                        )}
-                    </li>
-                ))}
-            </ol>
-        </div>
+        <>
+            <h1 className="mt-20 flex mb-5 text-center justify-center">
+                Activity History
+            </h1>
+            <div
+                id="history"
+                className="w-full max-w-md justify-self-center bg-white shadow-md rounded px-8 pt-6 pb-8"
+            >
+                <ol className="relative border-s border-gray-700">
+                    {activities.map((item) => (
+                        <li key="{item.id}" className="mb-10 ms-4">
+                            <TimelineMarker />
+                            <h3>{item.location}</h3>
+                            <p className="text-base font-normal text-gray-400">
+                                {item.summary}
+                            </p>
+                        </li>
+                    ))}
+                </ol>
+            </div>
+        </>
     );
 }

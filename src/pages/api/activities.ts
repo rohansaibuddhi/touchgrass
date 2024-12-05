@@ -113,46 +113,49 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 };
 
 export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
-    const decodedToken = await isValidSession(cookies);
-    if (!decodedToken) {
-        return redirect("/signin");
-    }
+    try {
+        const decodedToken = await isValidSession(cookies);
+        if (!decodedToken) {
+            return redirect("/signin");
+        }
 
-    const body: activityVerification = await request.json();
+        const body: activityVerification = await request.json();
 
-    const id = body.id;
+        const id = body.id;
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const type = body.image.split(";base64,")[0].split("data:")[1];
-    const image = body.image.split(";base64,")[1];
+        const type = body.image.split(";base64,")[0].split("data:")[1];
+        const image = body.image.split(";base64,")[1];
 
-    const prompt =
-        "This user was asked perform a certain action. If the image corresponds to the given action respond with 'true' if verification is successful else 'false' and nothing else, not even a newline. The action is: " +
-        body.activity;
+        const prompt =
+            "This user was asked perform a certain action. If the image corresponds to the given action respond with 'true' if verification is successful else 'false' and nothing else, not even a newline. The action is: " +
+            body.activity;
 
-    const generatedContent = await model.generateContent([
-        prompt,
-        {
-            inlineData: {
-                data: image,
-                mimeType: type,
+        const generatedContent = await model.generateContent([
+            prompt,
+            {
+                inlineData: {
+                    data: image,
+                    mimeType: type,
+                },
             },
-        },
-    ]);
+        ]);
 
-    if (generatedContent.response.text().toLowerCase().trim() === "true") {
-        await db
-            .update(activities)
-            .set({ completed: true })
-            .where(eq(activities.id, id));
+        if (generatedContent.response.text().toLowerCase().trim() === "true") {
+            await db
+                .update(activities)
+                .set({ completed: true })
+                .where(eq(activities.id, id));
+        }
+
+        return buildResponse(
+            { verification: generatedContent.response.text() },
+            200,
+        );
+    } catch (error) {
+        console.log("Error: ", error);
     }
-
-    return new Response(
-        JSON.stringify({ verification: generatedContent.response.text() }),
-        {
-            status: 200,
-        },
-    );
+    return buildResponse({ error: "Unable to verify activity" }, 500);
 };

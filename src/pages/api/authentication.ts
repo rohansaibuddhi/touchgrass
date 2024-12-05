@@ -6,7 +6,7 @@ import "dotenv/config";
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request, redirect, cookies }) => {
+export const POST: APIRoute = async ({ cookies }) => {
     const auth0State = createId();
     cookies.set("auth0_state", auth0State, {
         path: "/",

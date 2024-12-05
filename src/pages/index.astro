@@ -19,64 +19,81 @@ const session = Astro.cookies.get("session")?.value
 
 // no session and no OAuth redirect
 if ((!session && !code) || (code && state !== storedState)) {
-	console.log("Invalid Session")
-  return Astro.redirect("/signin");
+    console.log("Invalid Session")
+    return Astro.redirect("/signin");
 }
 
 // fake session: this should not happen, but just in case
 if (!code && session && !await kv.get(session)) {
-  const idToken = await kv.get(session);
-  Astro.cookies.set("session", "nop", {
-    httpOnly: true,
-    expires: new Date("December 17, 1995 03:24:00"),
-    path: "/",
-  });
-  console.log("Fake session detected")
-  return Astro.redirect("/signin");
-} else if (!code && session) {
-	const idToken = await kv.get(session);
-	// TODO: verify the token here too along with the validity time
+    Astro.cookies.set("session", "nop", {
+        httpOnly: true,
+        expires: new Date("December 17, 1995 03:24:00"),
+        path: "/",
+    });
+    console.log("Fake session detected")
+    return Astro.redirect("/signin");
 }
 
+if (!code && session) {
+    try {
+        const idToken = await kv.get(session) as string;
+            const client = jwksClient({
+            jwksUri: process.env.AUTH0_ENDPOINT + "/.well-known/jwks.json",
+        });
+        const header = jwt.decode(idToken, {complete: true})?.header as JwtHeader
+        const publicKey = (await client.getSigningKey(header.kid)).getPublicKey();
+        jwt.verify(idToken, publicKey);
 
+    } catch(error) {
+        Astro.cookies.set("session", "nop", {
+            httpOnly: true,
+            expires: new Date("December 17, 1995 03:24:00"),
+            path: "/",
+        });
+        return Astro.redirect("/signin");
+    }
+}
 
 // OAuth redirect
 if (!session && code) {
-  const formData = new URLSearchParams();
-  formData.append("grant_type", "authorization_code");
-  formData.append("client_id", process.env.AUTH0_CLIENT_ID);
-  formData.append("client_secret", process.env.AUTH0_CLIENT_SECRET);
-  formData.append("redirect_uri", process.env.AUTH0_CALLBACK_URL);
-  formData.append("code", code);
+    try {
+        const formData = new URLSearchParams();
+        formData.append("grant_type", "authorization_code");
+        formData.append("client_id", process.env.AUTH0_CLIENT_ID);
+        formData.append("client_secret", process.env.AUTH0_CLIENT_SECRET);
+        formData.append("redirect_uri", process.env.AUTH0_CALLBACK_URL);
+        formData.append("code", code);
 
-  const tokenResponse = await fetch(process.env.AUTH0_ENDPOINT + "/oauth/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: formData,
-  });
-  const idToken = (await tokenResponse.json()).id_token;
-  const decoded = jwt.decode(idToken) as JWTToken;
-  registerUser(decoded?.name, decoded?.email, decoded?.sub);
+        const tokenResponse = await fetch(process.env.AUTH0_ENDPOINT + "/oauth/token", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: formData,
+        });
+        const idToken = (await tokenResponse.json()).id_token;
+        const decoded = jwt.decode(idToken) as JWTToken;
+        registerUser(decoded?.name, decoded?.email, decoded?.sub);
   
 
-  const client = jwksClient({
-    jwksUri: process.env.AUTH0_ENDPOINT + "/.well-known/jwks.json",
-  });
-  const header = jwt.decode(idToken, {complete: true})?.header as JwtHeader
-  const publicKey = (await client.getSigningKey(header.kid)).getPublicKey();
-  const verifiedPayload = jwt.verify(idToken, publicKey);
+        const client = jwksClient({
+            jwksUri: process.env.AUTH0_ENDPOINT + "/.well-known/jwks.json",
+        });
+        const header = jwt.decode(idToken, {complete: true})?.header as JwtHeader
+        const publicKey = (await client.getSigningKey(header.kid)).getPublicKey();
+        jwt.verify(idToken, publicKey);
 
-  // TODO: add try catch in case verification fails, also add a check for time based validity before the verification
-
-  const session = uuidv4().toString();
-  await kv.set(session, idToken);
-  Astro.cookies.set("session", session, {
-    httpOnly: true,
-    maxAge: 5 * 24 * 60 * 60,
-    path: "/",
-  });
+        const session = uuidv4().toString();
+        await kv.set(session, idToken);
+        Astro.cookies.set("session", session, {
+            httpOnly: true,
+            maxAge: 5 * 24 * 60 * 60,
+            path: "/",
+        });
+        return Astro.redirect("/");
+    } catch(error) {
+        return Astro.redirect("/signin");
+    }
 }
 
 ---
