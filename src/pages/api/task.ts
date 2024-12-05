@@ -7,11 +7,19 @@ import {
     getInterestingPlaces,
     buildResponse,
     isValidSession,
+    type JWTToken,
 } from "../../commons/utils.ts";
+import { users } from "../../models/users.ts";
+import { activities } from "../../models/activities.ts";
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ cookies, request, redirect }) => {
     try {
+        const decodedToken = await isValidSession(cookies);
+        if (!decodedToken) {
+            return redirect("/signin");
+        }
+
         const formBody = await request.formData();
         if (!formBody.get("latitude") || !formBody.get("longitude")) {
             throw Error("Missing location data");
@@ -19,7 +27,27 @@ export const POST: APIRoute = async ({ request }) => {
         const lat = Number(formBody.get("latitude"));
         const long = Number(formBody.get("longitude"));
 
-        const result = await getInterestingPlaces(lat, long);
+        const location = (decodedToken as JWTToken).sub;
+        const ret = await db
+            .select({ id: users.id })
+            .from(users)
+            .where(eq(users.location, location));
+
+        if (!ret || ret.length == 0) {
+            throw Error("Invalid User");
+        }
+
+        const pastLocations = await db
+            .select({ location: activities.location })
+            .from(activities)
+            .where(eq(activities.userid, ret[0].id));
+
+        let locationsToAvoid = "";
+        if (pastLocations && pastLocations.length !== 0) {
+            locationsToAvoid = pastLocations.map((l) => l.location).join(", ");
+        }
+
+        const result = await getInterestingPlaces(lat, long, locationsToAvoid);
         if (!result) {
             throw Error("No Response from Gemini");
         }

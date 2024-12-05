@@ -23,7 +23,7 @@ export default function Button({
                 <button
                     className={
                         styles +
-                        " disabled:bg-gray-500 disabled:hover:bg-gray-500"
+                        " disabled:bg-gray-500 disabled:pointer-events-none"
                     }
                     onClick={clickHandler}
                     disabled
